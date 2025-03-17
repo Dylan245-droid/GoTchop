@@ -7,3 +7,5 @@ media/
 .idea
 
 db.sqlite3
+
+staticfiles/
