@@ -1,0 +1,106 @@
+{% extends "reviews/base.html" %}
+
+{% block title %}Accueil - EatWhere{% endblock %}
+
+{% block content %}
+<!-- Bannière -->
+<div class="jumbotron text-center p-5 banner">
+    <h1 class="display-4">Bienvenue sur <strong>EatWhere</strong></h1>
+    <p class="lead">Découvrez et partagez des avis sur les meilleurs établissements de la ville.</p>
+    <img src="https://lesroches.edu/wp-content/uploads/2022/08/Restaurant_business_plan_main.jpg" class="img-fluid rounded shadow" alt="Bannière">
+</div>
+
+<!-- Barre de recherche -->
+<div class="container mt-4">
+    <form method="GET" action="{% url 'home' %}" class="d-flex justify-content-center">
+        <input type="text" name="q" class="form-control w-50 search-bar" placeholder="Rechercher un établissement..." value="{{ query }}">
+        <button type="submit" class="btn btn-primary ms-2">🔍</button>
+    </form>
+</div>
+
+<!-- Liste des établissements -->
+<div class="container mt-5">
+    <h2 class="section-title">🏬 Établissements</h2>
+    <div class="row">
+        {% for establishment in establishments %}
+            <div class="col-md-4 mb-4">
+                <div class="card shadow-sm establishment-card">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ establishment.nom_r }}</h5>
+                        <p class="card-text text-muted">{{ establishment.description|truncatechars:100 }}</p>
+                        <p><strong>Catégorie :</strong> {{ establishment.categorie }}</p>
+                        <a href="{% url 'establishment_detail' establishment.id %}" class="btn btn-primary">Voir Détails</a>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <p class="text-muted">Aucun établissement trouvé.</p>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Derniers Avis -->
+<div class="container mt-5">
+    <h2 class="section-title">📝 Derniers Avis</h2>
+    <ul class="list-group review-list">
+        {% for review in latest_reviews %}
+            <li class="list-group-item review-item">
+                <strong>{{ review.utilisateur.username }}</strong> a laissé un avis sur
+                <a href="{% url 'establishment_detail' review.etablissement.id %}">{{ review.etablissement.nom_r }}</a> :
+                <br>
+                <strong>Note :</strong> ⭐ {{ review.note }}/5
+                <p class="mb-1">{{ review.commentaire|truncatechars:100 }}</p>
+                <small class="text-muted">{{ review.crée_le|date:"d/m/Y H:i" }}</small>
+            </li>
+        {% empty %}
+            <p class="text-muted">Aucun avis récent.</p>
+        {% endfor %}
+    </ul>
+</div>
+
+<!-- Bouton Mode Sombre/Clair -->
+<div class="container text-center mt-4">
+    <button id="toggleTheme" class="btn btn-outline-secondary">🌙 Mode Sombre</button>
+</div>
+
+<script>
+    document.getElementById("toggleTheme").addEventListener("click", function() {
+        document.body.classList.toggle("dark-mode");
+        this.textContent = document.body.classList.contains("dark-mode") ? "☀️ Mode Clair" : "🌙 Mode Sombre";
+    });
+</script>
+
+<style>
+    body.dark-mode {
+        background-color: #121212;
+        color: #ffffff;
+    }
+    .banner {
+        background-color: #f8f9fa;
+        padding: 40px;
+        border-radius: 10px;
+    }
+    .dark-mode .banner {
+        background-color: #333;
+    }
+    .section-title {
+        border-bottom: 2px solid #007bff;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+    }
+    .establishment-card:hover {
+        transform: scale(1.03);
+        transition: 0.3s;
+    }
+    .review-item {
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        padding: 15px;
+    }
+    .dark-mode .review-item {
+        background-color: #444;
+    }
+</style>
+
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends "reviews/base.html" %}
+
+{% block title %}Liste des établissements{% endblock %}
+
+{% block content %}
+    <h1 class="mb-4">Établissements</h1>
+    <ul class="list-group">
+        {% for establishment in establishments %}
+            <li class="list-group-item">
+                <a href="{% url 'establishment_detail' establishment.id %}">
+                    {{ establishment.nom_r }} - {{ establishment.ville }}
+                </a>
+            </li>
+        {% empty %}
+            <p>Aucun établissement trouvé.</p>
+        {% endfor %}
+    </ul>
+{% endblock %}
+
+

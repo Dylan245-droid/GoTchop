@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>Modifier votre avis</h2>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Mettre à jour</button>
+  </form>
+  <a href="{% url 'establishment_detail' review.establishment.id %}">Annuler</a>
+{% endblock %}

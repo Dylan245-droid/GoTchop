@@ -1,0 +1,27 @@
+{% extends "reviews/base.html" %}
+
+{% block title %}{{ selected_category }} - EatWhere{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="display-5">Catégorie : {{ selected_category }}</h1>
+    
+    {% if establishments %}
+        <div class="row">
+            {% for establishment in establishments %}
+                <div class="col-md-4">
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ establishment.nom_r }}</h5>
+                            <p class="card-text">{{ establishment.description|truncatewords:20 }}</p>
+                            <a href="{% url 'establishment_detail' establishment.id %}" class="btn btn-primary">Voir plus</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="text-muted">Aucun établissement trouvé dans cette catégorie.</p>
+    {% endif %}
+</div>
+{% endblock %}

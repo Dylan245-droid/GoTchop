@@ -1,0 +1,146 @@
+{% extends "reviews/base.html" %}
+
+{% block title %}Détails de l'Établissement - {{ establishment.nom_r }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow-lg rounded">
+        <div class="card-body">
+            <!-- Titre de l'établissement -->
+            <h1 class="card-title text-center">{{ establishment.nom_r }}</h1>
+            <p class="card-text"><strong>Adresse :</strong> {{ establishment.addresse }}</p>
+            <p class="card-text"><strong>Description :</strong> {{ establishment.description }}</p>
+
+            <!-- Section des avis -->
+            <h2 class="mt-4">Avis des utilisateurs</h2>
+
+            <div class="mt-4 d-flex flex-wrap gap-2">
+                <a href="{% url 'home' %}" class="btn btn-primary">🏠 Retour à l'Accueil</a>
+                <a href="{% url 'add_review' establishment.id %}" class="btn btn-success">➕ Ajouter un Avis</a>
+            </div>
+
+            {% if establishment.reviews.exists %}
+                <ul class="list-group">
+                    {% for review in establishment.reviews.all %}
+                        <li class="list-group-item">
+                            <div class="d-flex justify-content-between">
+                                <strong>{{ review.utilisateur.username }}</strong>
+                                <small class="text-muted">{{ review.crée_le|date:"d M Y" }}</small>
+                            </div>
+                            <p class="mb-1">{{ review.commentaire }}</p>
+                            <p class="text-warning">
+                                {% for _ in "⭐"|ljust:review.note %}⭐{% endfor %}
+                            </p>
+                            <div class="vote-buttons">
+                                <button class="btn btn-success vote-btn" data-review-id="{{ review.id }}" data-vote-type="like">
+                                    👍 <span id="like-count-{{ review.id }}">{{ review.total_likes }}</span>
+                                </button>
+                                <button class="btn btn-danger vote-btn" data-review-id="{{ review.id }}" data-vote-type="dislike">
+                                    👎 <span id="dislike-count-{{ review.id }}">{{ review.total_dislikes }}</span>
+                                </button>
+
+                                <div class="report-section">
+                                    <button class="btn btn-warning report-btn" data-review-id="{{ review.id }}">
+                                        🚨 Signaler (<span id="report-count-{{ review.id }}">{{ review.total_reports }}</span>)
+                                    </button>
+                                </div>
+
+                                     
+                                {% for review in reviews %}
+                                <div class="review">
+                                    {% if user.is_authenticated and user != review.utilisateur %}
+                                        <div class="report-section">
+                                            <button class="btn btn-warning report-btn" data-review-id="{{ review.id }}">
+                                                🚨 Signaler (<span id="report-count-{{ review.id }}">{{ review.total_reports }}</span>)
+                                            </button>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                            
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="text-muted">Aucun avis pour le moment. Soyez le premier à donner votre avis !</p>
+            {% endif %}
+
+        
+
+            {% for review in reviews %}
+                 <div class="review">
+                     {% if request.user.is_authenticated and review.utilisateur == request.user %}
+                         <p><strong>{{ review.utilisateur.username }}</strong> - {{ review.crée_le }}</p>
+                         <p>Note : {{ review.note }}</p>
+                         <p>{{ review.commentaire }}</p>
+
+                    
+                         <div class="review-actions">
+                             <a href="{% url 'edit_review' review.id %}" class="btn btn-warning">Modifier</a>
+                             <a href="{% url 'delete_review' review.id %}" class="btn btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet avis ?');">Supprimer</a>
+                          </div>
+                       {% endif %}
+                 </div>
+             {% endfor %}
+        
+        </div>
+    </div>
+ </div>
+ <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        document.querySelectorAll(".vote-btn").forEach(button => {
+            button.addEventListener("click", function() {
+                const reviewId = this.getAttribute("data-review-id");
+                const voteType = this.getAttribute("data-vote-type");
+                
+                fetch(`/review/${reviewId}/vote/${voteType}/`, {
+                    method: "POST",
+                    headers: {
+                        "X-CSRFToken": "{{ csrf_token }}",
+                        "Content-Type": "application/json"
+                    },
+                    credentials: "same-origin"
+                })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById(`like-count-${reviewId}`).textContent = data.likes;
+                    document.getElementById(`dislike-count-${reviewId}`).textContent = data.dislikes;
+                })
+                .catch(error => console.error("Erreur:", error));
+            });
+        });
+    });
+    </script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            document.querySelectorAll(".report-btn").forEach(button => {
+                button.addEventListener("click", function() {
+                    const reviewId = this.getAttribute("data-review-id");
+        
+                    fetch(`/review/${reviewId}/report/`, {
+                        method: "POST",
+                        headers: {
+                            "X-CSRFToken": "{{ csrf_token }}",
+                            "Content-Type": "application/json"
+                        },
+                        credentials: "same-origin"
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.error) {
+                            alert(data.error); // Affiche un message d'erreur si l'utilisateur tente de signaler son propre avis
+                        } else {
+                            document.getElementById(`report-count-${reviewId}`).textContent = data.total_reports;
+                            alert(data.message);
+                        }
+                    })
+                    .catch(error => console.error("Erreur:", error));
+                });
+            });
+        });
+        </script>
+        
+    
+
+{% endblock %}

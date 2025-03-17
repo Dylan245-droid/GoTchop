@@ -1,0 +1,47 @@
+{% extends "reviews/base.html" %}
+
+{% block title %}Ajouter un avis - {{ establishment.nom_r }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="text-center mb-4">
+        <h1 class="display-5">Ajouter un avis pour <strong>{{ establishment.nom_r }}</strong> 📝</h1>
+    </div>
+
+    <div class="card shadow-lg">
+        <div class="card-body">
+            {% if user.is_authenticated %}
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <!-- Champ pour la note -->
+                    <div class="mb-3">
+                        <label for="{{ form.note.id_for_label }}" class="form-label">Note (1-5) :</label>
+                        <input type="number" name="note" class="form-control" id="note" min="1" max="5" required>
+                    </div>
+
+                    <!-- Champ pour le commentaire -->
+                    <div class="mb-3">
+                        <label for="{{ form.commentaire.id_for_label }}" class="form-label">Commentaire :</label>
+                        <textarea name="commentaire" class="form-control" id="commentaire" rows="4" placeholder="Votre avis..." required></textarea>
+                    </div>
+
+                    <!-- Boutons d'action -->
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'establishment_detail' establishment.id %}" class="btn btn-secondary">
+                            ❌ Annuler
+                        </a>
+                        <button type="submit" class="btn btn-success">
+                            ✅ Envoyer mon avis
+                        </button>
+                    </div>
+                </form>
+            {% else %}
+                <p class="text-center text-danger">
+                    🚫 Vous devez être <a href="{% url 'login' %}">connecté</a> pour donner un avis.
+                </p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
