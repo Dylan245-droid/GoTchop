@@ -7,24 +7,20 @@ on:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted  # Utilise le runner local
 
     steps:
       - name: Checkout du code
         uses: actions/checkout@v3
 
-      - name: Déployer via SSH
-        uses: appleboy/ssh-action@v0.1.10
-        with:
-          host: ${{ secrets.VM_TEST_IP }}
-          username: genese_estivale
-          key: ${{ secrets.DEPLOY_KEY }}
-          script: |
-            cd /var/www/eatwhere_app/Eatwhere
-            source ../venv/bin/activate
-            git pull origin main
-            pip3 install -r requirements_prod.txt
-            python3 manage.py migrate
-            python3 manage.py collectstatic --noinput
-            sudo systemctl restart eatwhere_gunicorn
-            sudo systemctl restart nginx
+      - name: Déployer l’application
+        run: |
+          cd /var/www/eatwhere_app/Eatwhere
+          git pull origin main
+          source ../venv/bin/activate
+          pip3 install -r requirements_prod.txt
+          python3 manage.py migrate
+          python3 manage.py collectstatic --noinput
+          sudo systemctl restart eatwhere_gunicorn
+          sudo systemctl restart nginx
+
