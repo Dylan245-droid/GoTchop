@@ -1,14 +1,10 @@
 {% extends "reviews/base.html" %}
 
+{% load static %}
+
 {% block title %}Accueil - EatWhere{% endblock %}
 
 {% block content %}
-<!-- Bannière -->
-<div class="jumbotron text-center p-5 banner">
-    <h1 class="display-4">Bienvenue sur <strong>EatWhere</strong></h1>
-    <p class="lead">Découvrez et partagez des avis sur les meilleurs établissements de la ville.</p>
-    <img src="https://lesroches.edu/wp-content/uploads/2022/08/Restaurant_business_plan_main.jpg" class="img-fluid rounded shadow" alt="Bannière">
-</div>
 
 <!-- Barre de recherche -->
 <div class="container mt-4">
@@ -18,6 +14,17 @@
     </form>
 </div>
 
+
+<!-- Bannière -->
+<div class="jumbotron text-center p-5 banner">
+    <h1 class="display-4">Bienvenue sur <strong>EatWhere</strong></h1>
+    <p class="lead">Découvrez et partagez des avis sur les meilleurs établissements de la ville.</p>
+    <img src="https://lesroches.edu/wp-content/uploads/2022/08/Restaurant_business_plan_main.jpg" 
+         class="img-fluid rounded shadow banner-img" alt="Restaurant ambiance" aria-label="Bannière d'accueil de EatWhere">
+</div>
+
+
+
 <!-- Liste des établissements -->
 <div class="container mt-5">
     <h2 class="section-title">🏬 Établissements</h2>
@@ -25,10 +32,28 @@
         {% for establishment in establishments %}
             <div class="col-md-4 mb-4">
                 <div class="card shadow-sm establishment-card">
+                    {% if establishment.image %}
+                        <img src="{{ establishment.image.url }}" class="card-img-top" alt="{{ establishment.nom_r }}" aria-label="Image de {{ establishment.nom_r }}">
+                    {% else %}
+                        <img src="{% static 'images/default_restaurant.jpg' %}" class="card-img-top" alt="Image par défaut" aria-label="Image par défaut d'établissement">
+                    {% endif %}
+                    
                     <div class="card-body">
                         <h5 class="card-title">{{ establishment.nom_r }}</h5>
                         <p class="card-text text-muted">{{ establishment.description|truncatechars:100 }}</p>
-                        <p><strong>Catégorie :</strong> {{ establishment.categorie }}</p>
+                        <p>
+                            <strong>Catégorie :</strong> 
+                            {% if establishment.categorie == "Restaurant" %}
+                                🍽️
+                            {% elif establishment.categorie == "Café" %}
+                                ☕
+                            {% elif establishment.categorie == "Fast Food" %}
+                                🍔
+                            {% else %}
+                                🏬
+                            {% endif %}
+                            {{ establishment.categorie }}
+                        </p>
                         <a href="{% url 'establishment_detail' establishment.id %}" class="btn btn-primary">Voir Détails</a>
                     </div>
                 </div>
@@ -60,16 +85,30 @@
 
 <!-- Bouton Mode Sombre/Clair -->
 <div class="container text-center mt-4">
-    <button id="toggleTheme" class="btn btn-outline-secondary">🌙 Mode Sombre</button>
+    <button id="toggleTheme" class="btn btn-outline-secondary" aria-label="Basculer entre le mode clair et sombre">🌙 Mode Sombre</button>
 </div>
 
+<!-- Script JS pour le mode sombre -->
 <script>
-    document.getElementById("toggleTheme").addEventListener("click", function() {
-        document.body.classList.toggle("dark-mode");
-        this.textContent = document.body.classList.contains("dark-mode") ? "☀️ Mode Clair" : "🌙 Mode Sombre";
+    document.addEventListener("DOMContentLoaded", function() {
+        const themeButton = document.getElementById("toggleTheme");
+        const isDarkMode = localStorage.getItem("darkMode") === "enabled";
+
+        if (isDarkMode) {
+            document.body.classList.add("dark-mode");
+            themeButton.textContent = "☀️ Mode Clair";
+        }
+
+        themeButton.addEventListener("click", function() {
+            document.body.classList.toggle("dark-mode");
+            const isDark = document.body.classList.contains("dark-mode");
+            localStorage.setItem("darkMode", isDark ? "enabled" : "disabled");
+            themeButton.textContent = isDark ? "☀️ Mode Clair" : "🌙 Mode Sombre";
+        });
     });
 </script>
 
+<!-- CSS -->
 <style>
     body.dark-mode {
         background-color: #121212;
@@ -80,6 +119,10 @@
         padding: 40px;
         border-radius: 10px;
     }
+    .banner-img {
+        max-width: 100%;
+        border-radius: 10px;
+    }
     .dark-mode .banner {
         background-color: #333;
     }
@@ -88,9 +131,12 @@
         padding-bottom: 10px;
         margin-bottom: 20px;
     }
+    .establishment-card {
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
     .establishment-card:hover {
         transform: scale(1.03);
-        transition: 0.3s;
+        box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
     }
     .review-item {
         background-color: #f8f9fa;
