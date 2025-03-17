@@ -1,0 +1,30 @@
+name: Deploy Django App
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v3
+
+      - name: Déployer via SSH
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.VM_TEST_IP }}
+          username: genese_estivale
+          key: ${{ secrets.DEPLOY_KEY }}
+          script: |
+            cd /var/www/eatwhere_app/Eatwhere
+            source ../venv/bin/activate
+            git pull origin main
+            pip3 install -r requirements_prod.txt
+            python3 manage.py migrate
+            python3 manage.py collectstatic --noinput
+            sudo systemctl restart eatwhere_gunicorn
+            sudo systemctl restart nginx
