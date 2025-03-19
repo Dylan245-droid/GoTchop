@@ -43,12 +43,12 @@
                         <p class="card-text text-muted">{{ establishment.description|truncatechars:100 }}</p>
                         <p>
                             <strong>Catégorie :</strong> 
-                            {% if establishment.categorie == "Restaurant" %}
-                                🍽️
-                            {% elif establishment.categorie == "Café" %}
-                                ☕
-                            {% elif establishment.categorie == "Fast Food" %}
-                                🍔
+                            {% if establishment.categorie == "Restaurant🍽️" %}
+                                
+                            {% elif establishment.categorie == "Café☕" %}
+                                
+                            {% elif establishment.categorie == "Fast Food🍔" %}
+                                
                             {% else %}
                                 🏬
                             {% endif %}

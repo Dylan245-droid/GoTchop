@@ -1,6 +1,8 @@
 from django.urls import path
 from .views import establishments_by_category
 from django.contrib.auth import views as auth_views
+from django.conf import settings
+from django.conf.urls.static import static
 from .views import (
     home, 
     establishment_list, 
@@ -14,6 +16,7 @@ from .views import (
     edit_review ,
     vote_review ,
     report_review ,
+    add_menu ,
 )
 
 urlpatterns = [
@@ -36,6 +39,9 @@ urlpatterns = [
     path('review/edit/<int:review_id>/', edit_review, name='edit_review'),
     path('review/<int:review_id>/vote/<str:vote_type>/', vote_review, name='vote_review'),
     path('review/<int:review_id>/report/', report_review, name='report_review'),
+    path("etablissement/<int:establishment_id>/ajouter_menu/", add_menu, name="add_menu"),
 ]
+
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 

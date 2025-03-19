@@ -1,9 +1,25 @@
 {% extends "reviews/base.html" %}
 
+    
+<li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" href="#" id="categoriesDropdown" type="button" data-bs-toggle="dropdown">
+        📂 Explorer par catégorie
+    </a>
+    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="categoriesDropdown">
+    {% for categorie, label in categories %}
+        <li>
+            <a class="dropdown-item" href="{% url 'category_filter' category=categorie %}">{{ label }}</a>
+        </li>
+    {% endfor %}
+
+</li>
+
 {% block title %}{{ selected_category }} - EatWhere{% endblock %}
+
 
 {% block content %}
 <div class="container mt-4">
+
     <h1 class="display-5">Catégorie : {{ selected_category }}</h1>
     
     {% if establishments %}

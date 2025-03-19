@@ -1,0 +1,47 @@
+{% extends "reviews/base.html" %}
+
+{% block title %}Ajouter un Menu - {{ establishment.nom_r }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow-lg">
+        <div class="card-body">
+            <h2 class="card-title text-center">Ajouter un menu pour {{ establishment.nom_r }}</h2>
+
+            <form method="post" enctype="multipart/form-data" class="mt-4">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="{{ form.nom_plat.id_for_label }}" class="form-label">Nom du Plat</label>
+                    {{ form.nom_plat }}
+                </div>
+
+                <div class="mb-3">
+                    <label for="{{ form.description.id_for_label }}" class="form-label">Description</label>
+                    {{ form.description }}
+                </div>
+
+                <div class="mb-3">
+                    <label for="{{ form.prix.id_for_label }}" class="form-label">Prix (FCFA)</label>
+                    {{ form.prix }}
+                </div>
+
+                <div class="mb-3">
+                    <label for="{{ form.image.id_for_label }}" class="form-label">Image du Menu</label>
+                    {{ form.image }}
+                </div>
+
+                <div class="mb-3">
+                    <label for="{{ form.menu_pdf.id_for_label }}" class="form-label">Ou Télécharger un PDF</label>
+                    {{ form.menu_pdf }}
+                </div>
+
+                <button type="submit" class="btn btn-success w-100">Ajouter le Menu</button>
+            </form>
+
+            <div class="mt-3">
+                <a href="{% url 'establishment_detail' establishment.id %}" class="btn btn-secondary">Retour</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

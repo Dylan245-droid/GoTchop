@@ -1,8 +1,8 @@
 from django.shortcuts import render, get_object_or_404, redirect, HttpResponse
 from django.contrib.auth.models import User
-from .models import Establishment, Review
-from .forms import ReviewForm
-from django.contrib.auth.decorators import login_required
+from .models import Establishment, Review,Menu
+from .forms import ReviewForm, MenuForm
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import redirect
 from django.contrib import messages
 from django.http import JsonResponse
@@ -45,6 +45,8 @@ def establishment_list(request):
 def establishment_detail(request, establishment_id):
     establishment = get_object_or_404(Establishment, pk=establishment_id)
     reviews = establishment.reviews.all()
+    menus = Menu.objects.filter(establishment=establishment)# Récupérer les menus liés à l'établissement
+    
 
     if request.method == 'POST':
         form = ReviewForm(request.POST)
@@ -60,7 +62,8 @@ def establishment_detail(request, establishment_id):
     return render(request, 'reviews/establishment_detail.html', {
         'establishment': establishment,
         'reviews': reviews,
-        'form': form
+        'form': form,
+        "menu": menus,
     })
 
 # Vue pour ajouter un avis à un établissement
@@ -204,3 +207,24 @@ def report_review(request, review_id):
         message = "Avis signalé avec succès."
 
     return JsonResponse({"total_reports": review.total_reports(), "message": message})
+
+def est_admin(user):
+    return user.is_staff or user.is_superuser  # Seuls les admins peuvent ajouter un menu
+
+@login_required
+@user_passes_test(est_admin)
+def add_menu(request, establishment_id):
+    establishment = get_object_or_404(Establishment, id=establishment_id)
+
+    if request.method == "POST":
+        form = MenuForm(request.POST, request.FILES)
+        if form.is_valid():
+            menu = form.save(commit=False)
+            menu.establishment = establishment
+            menu.save()
+            return redirect("establishment_detail", id=establishment.id)  
+
+    else:
+        form = MenuForm()
+
+    return render(request, "reviews/add_menu.html", {"form": form, "establishment": establishment})
