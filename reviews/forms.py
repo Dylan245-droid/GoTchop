@@ -1,5 +1,5 @@
 from django import forms
-from .models import Review
+from .models import Review, ReviewImage
 from .models import Menu
 
 class ReviewForm(forms.ModelForm):
@@ -16,6 +16,13 @@ class ReviewForm(forms.ModelForm):
             ),  # Zone de texte avec 4 lignes par défaut
             
         }
+        
+class ReviewImageForm(forms.ModelForm):
+    class Meta:
+        model = ReviewImage
+        fields = ['image']
+
+ReviewImageFormSet = forms.modelformset_factory(ReviewImage, form=ReviewImageForm, extra=3)
         
 class MenuForm(forms.ModelForm):
     class Meta:

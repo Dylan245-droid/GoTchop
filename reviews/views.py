@@ -1,12 +1,13 @@
 from django.shortcuts import render, get_object_or_404, redirect, HttpResponse
 from django.contrib.auth.models import User
-from .models import Establishment, Review,Menu
+from .models import Establishment, Review,Menu, ReviewImage
 from .forms import ReviewForm, MenuForm
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import redirect
 from django.contrib import messages
 from django.http import JsonResponse
-
+from django.db.models import Avg, Count
+from django.core.paginator import Paginator
 
 # Vue pour afficher la page d'accueil
 from django.shortcuts import render
@@ -38,8 +39,34 @@ def home(request):
 
 # Vue pour afficher la liste des établissements
 def establishment_list(request):
-    establishments = Establishment.objects.all()
-    return render(request, 'establishments/list.html', {'establishments': establishments})
+    filter_type = request.GET.get("filter", "")
+
+    establishments = Establishment.objects.annotate(
+        average_rating=Avg("reviews__note"),
+        review_count=Count("reviews")
+    )
+
+    # Ajout d'attributs pour le template
+    for establishment in establishments:
+        amenities_list = list(establishment.amenities.values_list("name", flat=True))
+        establishment.has_reservation = "Réservations" in amenities_list
+        establishment.has_ordering = "Pas besoin de réserver" in amenities_list
+
+    # Appliquer les filtres
+    if filter_type == "top_rated":
+        establishments = establishments.order_by("-average_rating")
+    elif filter_type == "vibes":
+        establishments = establishments.filter(vibes__isnull=False)
+    elif filter_type == "amenities":
+        establishments = establishments.filter(amenities__isnull=False)
+
+    paginator = Paginator(establishments, 10)
+    page_number = request.GET.get("page")
+    establishments_page = paginator.get_page(page_number)
+
+    return render(request, "establishments/list.html", {
+        "establishments": establishments_page
+    })
 
 # Vue pour afficher le détail d'un établissement
 def establishment_detail(request, establishment_id):
@@ -63,33 +90,34 @@ def establishment_detail(request, establishment_id):
         'establishment': establishment,
         'reviews': reviews,
         'form': form,
-        "menu": menus,
+        "menus": menus,
     })
 
 # Vue pour ajouter un avis à un établissement
 @login_required(login_url='login')
 def add_review(request, establishment_id):
-    
- establishment = get_object_or_404(Establishment, id=establishment_id)
+    establishment = get_object_or_404(Establishment, id=establishment_id)
 
- if request.method == "POST":
+    if request.method == "POST":
         note = request.POST.get("note")
         commentaire = request.POST.get("commentaire")
+        images = request.FILES.getlist("images")  # Récupération des images
 
         if note and commentaire:
-            Review.objects.create(
+            review = Review.objects.create(
                 utilisateur=request.user,
                 etablissement=establishment,
                 note=note,
                 commentaire=commentaire
-                
-                
             )
+
+            # Sauvegarde des images
+            for image in images:
+                ReviewImage.objects.create(review=review, image=image)
+
             return redirect('establishment_detail', establishment_id=establishment.id)
-        
 
- return render(request, 'reviews/add_review.html', {'establishment': establishment})
-
+    return render(request, 'reviews/add_review.html', {'establishment': establishment})
 # Vue pour afficher le détail d'un avis
 def review_detail(request, review_id):
     return render(request, 'reviews/review_detail.html', {'review_id': review_id})
@@ -228,3 +256,5 @@ def add_menu(request, establishment_id):
         form = MenuForm()
 
     return render(request, "reviews/add_menu.html", {"form": form, "establishment": establishment})
+
+

@@ -43,7 +43,7 @@
                         <p class="card-text text-muted">{{ establishment.description|truncatechars:100 }}</p>
                         <p>
                             <strong>Catégorie :</strong> 
-                            {% if establishment.categorie == "Restaurant🍽️" %}
+                            {% if establishment.categorie == "Restaurant 🍽️" %}
                                 
                             {% elif establishment.categorie == "Café☕" %}
                                 
@@ -130,6 +130,19 @@
         border-bottom: 2px solid #007bff;
         padding-bottom: 10px;
         margin-bottom: 20px;
+    }
+
+    .input-group input {
+        border-radius: 5px 0 0 5px;
+        border-right: none;
+        background-color: #444;
+
+    }
+    
+    .input-group button {
+        border-radius: 0 5px 5px 0;
+        background-color: #444;
+        color: red;
     }
     .establishment-card {
         transition: transform 0.3s, box-shadow 0.3s;

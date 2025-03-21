@@ -1,6 +1,10 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+from django.db import models
+
+from django.db import models
+
 class Establishment(models.Model):
     CATEGORY_CHOICES = [
         ('restaurant', 'Restaurant'),
@@ -14,12 +18,44 @@ class Establishment(models.Model):
     description = models.TextField()
     addresse = models.CharField(max_length=255)
     ville = models.CharField(max_length=100)
-    categorie = models.CharField(max_length=50, choices=CATEGORY_CHOICES)  # Correction ici ✅
-    crée_le = models.DateTimeField(auto_now_add=True)  # Date de création automatique
-    image = models.ImageField(upload_to='establishments/', blank=True, null=True) 
+    categorie = models.CharField(max_length=50, choices=CATEGORY_CHOICES)
+    crée_le = models.DateTimeField(auto_now_add=True)
+    image = models.ImageField(upload_to='establishments/', blank=True, null=True)
+
+    # Contact
+    phone_number = models.CharField(max_length=20, blank=True, null=True)
+    website = models.URLField(blank=True, null=True)
+
+    # Relations avec Vibe et Amenities
+    vibes = models.ManyToManyField('Vibe', blank=True, related_name='establishments')  # 🎭 What's the vibe
+    amenities = models.ManyToManyField('Amenity', blank=True, related_name='establishments')  # ✅ Commodités
+
+    location_hours = models.TextField(blank=True, null=True)  # ⏰ Horaires d'ouverture
+    popular_dishes = models.TextField(blank=True, null=True)  # 🍽 Plats populaires
+    
+    def has_amenity(self, amenity_name):
+        """ Vérifie si l'établissement possède une amenity spécifique """
+        return self.amenities.filter(nom=amenity_name).exists()
 
     def __str__(self):
         return self.nom_r
+
+
+class Vibe(models.Model):
+    name = models.CharField(max_length=100)  # Ex: Moderate Noise, Casual, Good for Groups...
+    icon = models.ImageField(upload_to='vibes_icons/', blank=True, null=True)  # Icône/image associée
+
+    def __str__(self):
+        return self.name
+
+
+class Amenity(models.Model):
+    name = models.CharField(max_length=100)  # Ex: Offers Delivery, Vegan Options...
+    icon = models.ImageField(upload_to='amenities_icons/', blank=True, null=True)  # Icône/image associée
+
+    def __str__(self):
+        return self.name
+
 
 
 class Review(models.Model):
@@ -44,6 +80,13 @@ class Review(models.Model):
 
     def __str__(self):
         return f"Review by {self.utilisateur.username} for {self.etablissement.nom_r}"
+    
+class ReviewImage(models.Model):
+    review = models.ForeignKey(Review, on_delete=models.CASCADE, related_name="images")
+    image = models.ImageField(upload_to="review_images/")
+
+    def __str__(self):
+        return f"Image pour l'avis de {self.review.user_name}"
 
 
 from django.db import models

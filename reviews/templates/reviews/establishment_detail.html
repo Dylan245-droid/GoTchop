@@ -1,7 +1,9 @@
 {% extends "reviews/base.html" %}
-{% load static %} {# Pour charger les images statiques #}
+{% load static %}
 
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
 {% block title %}Détails de l'Établissement - {{ establishment.nom_r }}{% endblock %}
+
 
 {% block content %}
 <div class="container mt-5">
@@ -9,8 +11,50 @@
         <div class="card-body">
             <!-- 🏠 Informations sur l'établissement -->
             <h1 class="card-title text-center">{{ establishment.nom_r }}</h1>
+                <!-- 🏞️ Bannière de l'établissement -->
+             <!-- 🏞️ Bannière de l'établissement -->     
+             <div class="banner">
+                 {% if establishment.image %}
+                      <img src="{{ establishment.image.url }}" alt="{{ establishment.nom_r }}">
+                  {% else %}
+                        <img src="{% static 'images/default_banner.jpg' %}" alt="Image par défaut">
+                    {% endif %}
+              </div>
+
+
             <p><strong>📍 Adresse :</strong> {{ establishment.addresse }}</p>
             <p><strong>📝 Description :</strong> {{ establishment.description }}</p>
+
+            <!-- 🎭 Ambiance et Équipements -->
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <h3>What's the vibe?</h3>
+                    <div class="d-flex flex-wrap">
+                        {% for vibe in establishment.vibes.all %}
+                            <span class="badge bg-primary m-1">
+                                {% if vibe.icon %}
+                                    <img src="{{ vibe.icon.url }}" alt="{{ vibe.name }}" width="20">
+                                {% endif %}
+                                {{ vibe.name }}
+                            </span>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <h3>Amenities and More</h3>
+                    <div class="d-flex flex-wrap">
+                        {% for amenity in establishment.amenities.all %}
+                            <span class="badge bg-success m-1">
+                                {% if amenity.icon %}
+                                    <img src="{{ amenity.icon.url }}" alt="{{ amenity.name }}" width="20">
+                                {% endif %}
+                                {{ amenity.name }}
+                            </span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
 
             <!-- 🍽 Section Menu -->
             <h2 class="mt-4">🍽 Menu</h2>
@@ -19,23 +63,16 @@
                 <div class="row">
                     {% for menu in menus %}
                         <div class="col-md-4 mb-4">
-                            <div class="card shadow-sm">
+                            <div class="card shadow-sm h-100">
                                 {% if menu.image %}
-                                    <img src="{{ menu.image.url }}" class="card-img-top" alt="{{ menu.nom_plat }}">
+                                    <img src="{{ menu.image.url }}" class="card-img-top img-clickable rounded" alt="{{ menu.nom_plat }}" data-bs-toggle="modal" data-bs-target="#menuModal" data-img="{{ menu.image.url }}">
+
                                 {% elif menu.menu_pdf %}
-                                    <div class="card-body">
-                                        <p class="text-primary"><strong>💰 Prix :</strong> {{ menu.prix }} FCFA</p>
+                                    <div class="card-body text-center">
                                         <a href="{{ menu.menu_pdf.url }}" class="btn btn-info" target="_blank">📄 Voir le PDF</a>
                                     </div>
                                 {% endif %}
-                                <div class="card-body">
-                                    {% if menu.nom_plat %}
-                                        <h5 class="card-title">{{ menu.nom_plat }}</h5>
-                                    {% endif %}
-                                    {% if menu.description %}
-                                        <p class="card-text">{{ menu.description|truncatechars:100 }}</p>
-                                    {% endif %}
-                                </div>
+                                
                             </div>
                         </div>
                     {% endfor %}
@@ -43,15 +80,8 @@
             {% else %}
                 <p class="text-muted">Aucun menu disponible pour cet établissement.</p>
             {% endif %}
-            
 
-            <!-- 🔙 Boutons d'action -->
-            <div class="mt-4 d-flex flex-wrap gap-2">
-                <a href="{% url 'home' %}" class="btn btn-primary">🏠 Retour à l'Accueil</a>
-                <a href="{% url 'add_review' establishment.id %}" class="btn btn-success">➕ Ajouter un Avis</a>
-            </div>
-
-            <!-- ⭐ Section des Avis -->
+            <!-- 💬 Section des Avis -->
             <h2 class="mt-4">Avis des utilisateurs</h2>
 
             {% if establishment.reviews.exists %}
@@ -66,37 +96,18 @@
                             <p class="text-warning">
                                 {% for _ in "⭐"|ljust:review.note %}⭐{% endfor %}
                             </p>
-
-                            <!-- 👍👎 Système de Vote -->
-                            <div class="vote-buttons">
-                                <button class="btn btn-success vote-btn" data-review-id="{{ review.id }}" data-vote-type="like">
-                                    👍 <span id="like-count-{{ review.id }}">{{ review.total_likes }}</span>
-                                </button>
-                                <button class="btn btn-danger vote-btn" data-review-id="{{ review.id }}" data-vote-type="dislike">
-                                    👎 <span id="dislike-count-{{ review.id }}">{{ review.total_dislikes }}</span>
-                                </button>
-
-                                <!-- 🚨 Bouton Signaler (uniquement si l'utilisateur est connecté et n'est pas l'auteur de l'avis) -->
-                                {% if user.is_authenticated and user != review.utilisateur %}
-                                    <button class="btn btn-warning report-btn" data-review-id="{{ review.id }}">
-                                        🚨 Signaler (<span id="report-count-{{ review.id }}">{{ review.total_reports }}</span>)
-                                    </button>
-                                {% endif %}
-                            </div>
-
-                            <!-- ✏️ Actions sur l'avis (modifier/supprimer) -->
-                            {% if request.user.is_authenticated and review.utilisateur == request.user %}
-                                <div class="review-actions mt-2">
-                                    <a href="{% url 'edit_review' review.id %}" class="btn btn-warning">Modifier</a>
-                                    <a href="{% url 'delete_review' review.id %}" class="btn btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet avis ?');">Supprimer</a>
-                                </div>
-                            {% endif %}
                         </li>
                     {% endfor %}
                 </ul>
             {% else %}
                 <p class="text-muted mt-3">Aucun avis pour le moment. Soyez le premier à donner votre avis !</p>
             {% endif %}
+
+            <!-- 🔙 Boutons d'action -->
+            <div class="mt-4 d-flex flex-wrap gap-2">
+                <a href="{% url 'home' %}" class="btn btn-primary">🏠 Retour à l'Accueil</a>
+                <a href="{% url 'add_review' establishment.id %}" class="btn btn-success">➕ Ajouter un Avis</a>
+            </div>
         </div>
     </div>
 </div>
@@ -104,55 +115,29 @@
 <!-- 🎯 Scripts JavaScript -->
 <script>
 document.addEventListener("DOMContentLoaded", function() {
-    // Gestion du vote 👍👎
-    document.querySelectorAll(".vote-btn").forEach(button => {
-        button.addEventListener("click", function() {
-            const reviewId = this.getAttribute("data-review-id");
-            const voteType = this.getAttribute("data-vote-type");
-
-            fetch(`/review/${reviewId}/vote/${voteType}/`, {
-                method: "POST",
-                headers: {
-                    "X-CSRFToken": "{{ csrf_token }}",
-                    "Content-Type": "application/json"
-                },
-                credentials: "same-origin"
-            })
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById(`like-count-${reviewId}`).textContent = data.likes;
-                document.getElementById(`dislike-count-${reviewId}`).textContent = data.dislikes;
-            })
-            .catch(error => console.error("Erreur:", error));
-        });
-    });
-
-    // Gestion du signalement 🚨
-    document.querySelectorAll(".report-btn").forEach(button => {
-        button.addEventListener("click", function() {
-            const reviewId = this.getAttribute("data-review-id");
-
-            fetch(`/review/${reviewId}/report/`, {
-                method: "POST",
-                headers: {
-                    "X-CSRFToken": "{{ csrf_token }}",
-                    "Content-Type": "application/json"
-                },
-                credentials: "same-origin"
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.error) {
-                    alert(data.error);
-                } else {
-                    document.getElementById(`report-count-${reviewId}`).textContent = data.total_reports;
-                    alert(data.message);
-                }
-            })
-            .catch(error => console.error("Erreur:", error));
+    // Gestion du clic sur les images du menu
+    document.querySelectorAll(".img-clickable").forEach(img => {
+        img.addEventListener("click", function() {
+            let imgUrl = this.getAttribute("data-img");
+            document.getElementById("modalImage").setAttribute("src", imgUrl);
         });
     });
 });
 </script>
+
+<!-- 📸 Modal pour les images du menu -->
+<div class="modal fade" id="menuModal" tabindex="-1" aria-labelledby="menuModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="menuModalLabel">Agrandir l'image</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+            </div>
+            <div class="modal-body text-center">
+                <img id="modalImage" src="" class="img-fluid" alt="Menu">
+            </div>
+        </div>
+    </div>
+</div>
 
 {% endblock %}

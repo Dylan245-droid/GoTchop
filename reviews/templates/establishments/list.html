@@ -3,18 +3,98 @@
 {% block title %}Liste des établissements{% endblock %}
 
 {% block content %}
-    <h1 class="mb-4">Établissements</h1>
-    <ul class="list-group">
+<div class="container mt-4">
+    <h1 class="mb-4 text-center">Établissements</h1>
+
+    <!-- Filtres -->
+    <form method="get" class="mb-4 d-flex justify-content-center">
+        <select name="filter" class="form-select w-25 me-2">
+            <option value="">Trier par</option>
+            <option value="top_rated">Mieux notés</option>
+            <option value="vibes">Vibes</option>
+            <option value="amenities">Aminetys</option>
+        </select>
+        <button type="submit" class="btn btn-primary">Filtrer</button>
+    </form>
+
+    <!-- Liste des établissements -->
+    <div class="row">
         {% for establishment in establishments %}
-            <li class="list-group-item">
-                <a href="{% url 'establishment_detail' establishment.id %}">
-                    {{ establishment.nom_r }} - {{ establishment.ville }}
-                </a>
-            </li>
+            <div class="col-md-6 mb-4">
+                <div class="card shadow">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ establishment.nom_r }}</h5>
+                        <p class="card-text"><strong>Adresse :</strong> {{ establishment.addresse }}</p>
+                        <p class="card-text"><strong>Description :</strong> {{ establishment.description }}</p>
+
+                        <!-- Liste des vibes -->
+                        <p class="card-text"><strong>Vibes :</strong> 
+                            {% if establishment.vibes.all %}
+                                {% for vibe in establishment.vibes.all %}
+                                    <span class="badge bg-primary">{{ vibe.name }}</span>
+                                {% endfor %}
+                            {% else %}
+                                <span class="text-muted">Aucune vibe</span>
+                            {% endif %}
+                        </p>
+
+                        <!-- Liste des amenities -->
+                        <p class="card-text"><strong>Amenities :</strong> 
+                            {% if establishment.amenities.all %}
+                                {% for amenity in establishment.amenities.all %}
+                                    <span class="badge bg-success">{{ amenity.name }}</span>
+                                {% endfor %}
+                            {% else %}
+                                <span class="text-muted">Aucune amenity</span>
+                            {% endif %}
+                        </p>
+
+                        <p class="card-text"><strong>Nombre d'avis :</strong> {{ establishment.review_count }}</p>
+                        <p class="card-text">
+                            <strong>Note moyenne :</strong> 
+                            <span class="badge bg-warning text-dark">⭐ {{ establishment.average_rating|floatformat:1 }}/5</span>
+                        </p>
+
+                        <!-- Bouton Réserver ou Commander selon l'amenity -->
+                      {% if establishment.has_ordering %}
+                              <a href="#" class="btn btn-info">🛒 Commander</a>
+                     {% elif establishment.has_reservation %}
+                            <a href="#" class="btn btn-success">✅ Réserver</a>
+                    {% endif %}
+                    
+                    </div>
+                </div>
+            </div>
         {% empty %}
-            <p>Aucun établissement trouvé.</p>
+            <p class="text-center">Aucun établissement trouvé.</p>
         {% endfor %}
-    </ul>
+    </div>
+
+    <!-- Pagination -->
+    <nav aria-label="Pagination">
+        <ul class="pagination justify-content-center">
+            {% if establishments.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1">⏮️ Première</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ establishments.previous_page_number }}">⬅️ Précédente</a>
+                </li>
+            {% endif %}
+
+            <li class="page-item active">
+                <span class="page-link">Page {{ establishments.number }} sur {{ establishments.paginator.num_pages }}</span>
+            </li>
+
+            {% if establishments.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ establishments.next_page_number }}">Suivante ➡️</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ establishments.paginator.num_pages }}">Dernière ⏭️</a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+</div>
 {% endblock %}
-
-
