@@ -55,13 +55,13 @@
                             <span class="badge bg-warning text-dark">⭐ {{ establishment.average_rating|floatformat:1 }}/5</span>
                         </p>
 
-                        <!-- Bouton Réserver ou Commander selon l'amenity -->
-                      {% if establishment.has_ordering %}
+                         <!-- Bouton Réserver ou Commander selon l'amenity -->
+                          {% if establishment.has_ordering %}
                               <a href="#" class="btn btn-info">🛒 Commander</a>
-                     {% elif establishment.has_reservation %}
-                            <a href="#" class="btn btn-success">✅ Réserver</a>
-                    {% endif %}
-                    
+                         {% elif establishment.has_reservation %}
+                             <a href="#" class="btn btn-success">✅ Réserver</a>
+                           {% endif %}
+                     
                     </div>
                 </div>
             </div>
