@@ -9,3 +9,5 @@ media/
 db.sqlite3
 
 static/
+
+**/migrations/00*
