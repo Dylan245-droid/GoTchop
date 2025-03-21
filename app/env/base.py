@@ -118,7 +118,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS = [
-    BASE_DIR / 'static',  # 📌 Assure-toi que tes fichiers statiques sont ici
+    BASE_DIR /'app'/'static',  # 📌 Assure-toi que tes fichiers statiques sont ici
 ]
 
 STATIC_ROOT = BASE_DIR / 'static' 
