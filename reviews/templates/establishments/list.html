@@ -23,45 +23,57 @@
             <div class="col-md-6 mb-4">
                 <div class="card shadow">
                     <div class="card-body">
-                        <h5 class="card-title">{{ establishment.nom_r }}</h5>
+                        <!-- Nom de l'établissement cliquable -->
+                        <h5 class="card-title">
+                            <a href="{% url 'establishment_detail' establishment.id %}" class="text-dark text-decoration-none">
+                                {{ establishment.nom_r }}
+                            </a>
+                        </h5>
                         <p class="card-text"><strong>Adresse :</strong> {{ establishment.addresse }}</p>
                         <p class="card-text"><strong>Description :</strong> {{ establishment.description }}</p>
 
-                        <!-- Liste des vibes -->
+                        <!-- Vibes (affiché uniquement si disponible) -->
+                        {% if establishment.vibes.all %}
                         <p class="card-text"><strong>Vibes :</strong> 
-                            {% if establishment.vibes.all %}
-                                {% for vibe in establishment.vibes.all %}
-                                    <span class="badge bg-primary">{{ vibe.name }}</span>
-                                {% endfor %}
-                            {% else %}
-                                <span class="text-muted">Aucune vibe</span>
-                            {% endif %}
+                            {% for vibe in establishment.vibes.all %}
+                                <span class="badge bg-primary">{{ vibe.name }}</span>
+                            {% endfor %}
                         </p>
+                        {% endif %}
 
-                        <!-- Liste des amenities -->
+                        <!-- Amenities (affiché uniquement si disponible) -->
+                        {% if establishment.amenities.all %}
                         <p class="card-text"><strong>Amenities :</strong> 
-                            {% if establishment.amenities.all %}
-                                {% for amenity in establishment.amenities.all %}
-                                    <span class="badge bg-success">{{ amenity.name }}</span>
-                                {% endfor %}
-                            {% else %}
-                                <span class="text-muted">Aucune amenity</span>
-                            {% endif %}
+                            {% for amenity in establishment.amenities.all %}
+                                <span class="badge bg-success">{{ amenity.name }}</span>
+                            {% endfor %}
                         </p>
+                        {% endif %}
 
+                        <!-- Nombre d'avis -->
                         <p class="card-text"><strong>Nombre d'avis :</strong> {{ establishment.review_count }}</p>
+
+                        <!-- Note moyenne (affiché uniquement si disponible) -->
+                        {% if establishment.average_rating %}
                         <p class="card-text">
                             <strong>Note moyenne :</strong> 
                             <span class="badge bg-warning text-dark">⭐ {{ establishment.average_rating|floatformat:1 }}/5</span>
                         </p>
+                        {% endif %}
 
-                         <!-- Bouton Réserver ou Commander selon l'amenity -->
-                          {% if establishment.has_ordering %}
-                              <a href="#" class="btn btn-info">🛒 Commander</a>
-                         {% elif establishment.has_reservation %}
-                             <a href="#" class="btn btn-success">✅ Réserver</a>
-                           {% endif %}
-                     
+                        <!-- Bouton Réserver ou Commander selon l'amenity -->
+                        {% if establishment.has_ordering or establishment.has_reservation %}
+                                  {% if establishment.website %}
+                                        <a href="{{ establishment.website }}" class="btn btn-info" target="_blank">🛒 Commander</a>
+                                        <a href="{{ establishment.website }}" class="btn btn-success" target="_blank">✅ Réserver</a>
+                                 {% else %}
+                                      <p class="text-danger">Le site web n'est pas accessible pour l'instant.</p>
+                                     {% if establishment.phone_number %}
+                                           <a href="tel:{{ establishment.phone_number }}" class="btn btn-primary">📞 Appeler</a>
+                                      {% endif %}
+                                 {% endif %}
+                       {% endif %}
+                    
                     </div>
                 </div>
             </div>

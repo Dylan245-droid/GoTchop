@@ -48,9 +48,8 @@ def establishment_list(request):
 
     # Ajout d'attributs pour le template
     for establishment in establishments:
-        amenities_list = list(establishment.amenities.values_list("name", flat=True))
-        establishment.has_reservation = "Réservations" in amenities_list
-        establishment.has_ordering = "Pas besoin de réserver" in amenities_list
+         establishment.has_ordering = establishment.has_ordering()
+         establishment.has_reservation = establishment.has_reservation()
 
     # Appliquer les filtres
     if filter_type == "top_rated":

@@ -35,10 +35,17 @@ class Establishment(models.Model):
     
     def has_amenity(self, amenity_name):
         """ Vérifie si l'établissement possède une amenity spécifique """
-        return self.amenities.filter(nom=amenity_name).exists()
+        return self.amenities.filter(name=amenity_name).exists()
 
-    def __str__(self):
-        return self.nom_r
+
+    def has_ordering(self):
+       """ Vérifie si l'établissement permet les commandes """
+       return self.has_amenity("Pas besoin de réserver🚶‍♂️")
+
+    def has_reservation(self):
+       """ Vérifie si l'établissement propose des réservations """
+       return self.has_amenity("Réservations acceptées 📅")
+
 
 
 class Vibe(models.Model):
