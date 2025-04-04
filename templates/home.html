@@ -1,0 +1,138 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+
+{% block title %}
+  {{ APP_NAME }}
+{% endblock title %}
+
+
+{% block content %}
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-content">
+      <h1>Découvrez les meilleurs restaurants</h1>
+      <p>Trouvez l'endroit parfait pour votre prochaine expérience culinaire</p>
+      <!-- Barre de recherche -->
+      <div class="search-bar">
+        <form class="d-flex">
+          <input class="form-control me-2" type="search" placeholder="Rechercher un restaurant ou une ville">
+          <button class="btn btn-light" type="submit">Chercher</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section Restaurants Recommandés -->
+  <section class="py-5">
+    <div class="container">
+      <h2 class="mb-4 text-center">Restaurants Recommandés</h2>
+      <div class="row g-4">
+        <!-- Exemple de carte -->
+        <div class="col-md-4">
+          <div class="card">
+            <img src="https://images.unsplash.com/photo-1570560258879-af7f8e1447ac?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" class="card-img-top" alt="Restaurant 1">
+            <div class="card-body">
+              <h5 class="card-title">Le Gourmet</h5>
+              <p class="card-text"><strong>Note :</strong> ⭐ 4.8 / 5</p>
+              <p class="card-text"><small class="text-muted">Paris 2ème</small></p>
+              <a href="#" class="btn btn-outline-primary">Voir plus</a>
+            </div>
+          </div>
+        </div>
+        <!-- Répéter la carte pour d'autres restaurants -->
+        <div class="col-md-4">
+          <div class="card">
+            <img src="https://images.unsplash.com/photo-1514933651103-005eec06c04b?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" class="card-img-top" alt="Restaurant 2">
+            <div class="card-body">
+              <h5 class="card-title">La Table d'Or</h5>
+              <p class="card-text"><strong>Note :</strong> ⭐ 4.7 / 5</p>
+              <p class="card-text"><small class="text-muted">Lyon</small></p>
+              <a href="#" class="btn btn-outline-primary">Voir plus</a>
+            </div>
+          </div>
+        </div>
+        <!-- Troisième carte -->
+        <div class="col-md-4">
+          <div class="card">
+            <img src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" class="card-img-top" alt="Restaurant 3">
+            <div class="card-body">
+              <h5 class="card-title">Chez Savoureux</h5>
+              <p class="card-text"><strong>Note :</strong> ⭐ 4.9 / 5</p>
+              <p class="card-text"><small class="text-muted">Marseille</small></p>
+              <a href="#" class="btn btn-outline-primary">Voir plus</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section Derniers Avis (Carrousel) -->
+  <section class="py-5 bg-light">
+    <div class="container">
+      <h2 class="mb-4 text-center">Derniers Avis</h2>
+      <div id="carouselAvis" class="carousel slide" data-bs-ride="carousel">
+
+        <div class="carousel-inner">
+          <!-- Avis 1 -->
+          <div class="carousel-item active">
+            <div class="d-flex flex-column align-items-center">
+              <img src="https://thispersondoesnotexist.com/" class="rounded-circle mb-3" alt="Utilisateur 1">
+              <blockquote class="blockquote text-center">
+                <p class="mb-0">"Une expérience culinaire exceptionnelle !"</p>
+                <footer class="blockquote-footer">Alice, <cite title="Source Title">Le Gourmet</cite></footer>
+              </blockquote>
+            </div>
+          </div>
+          <!-- Avis 2 -->
+          <div class="carousel-item">
+            <div class="d-flex flex-column align-items-center">
+              <img src="https://thispersondoesnotexist.com/" class="rounded-circle mb-3" alt="Utilisateur 2">
+              <blockquote class="blockquote text-center">
+                <p class="mb-0">"Ambiance parfaite et service impeccable."</p>
+                <footer class="blockquote-footer">Bob, <cite title="Source Title">La Table d'Or</cite></footer>
+              </blockquote>
+            </div>
+          </div>
+          <!-- Avis 3 -->
+          <div class="carousel-item">
+            <div class="d-flex flex-column align-items-center">
+              <img src="https://thispersondoesnotexist.com/" class="rounded-circle mb-3" alt="Utilisateur 3">
+              <blockquote class="blockquote text-center">
+                <p class="mb-0">"Je recommande vivement, un régal pour les papilles !"</p>
+                <footer class="blockquote-footer">Charlie, <cite title="Source Title">Chez Savoureux</cite></footer>
+              </blockquote>
+            </div>
+          </div>
+        </div>
+
+        <button class="carousel-control-prev" type="button" data-bs-target="#carouselAvis" data-bs-slide="prev">
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Précédent</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#carouselAvis" data-bs-slide="next">
+          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Suivant</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section Call-to-Action -->
+  <section class="cta-section">
+    <div class="container">
+      <h2>Partagez votre expérience</h2>
+      <p class="mb-4">Votre avis aide la communauté à découvrir les meilleurs restaurants.</p>
+      <a href="#" class="btn btn-light btn-lg">Laissez un avis</a>
+    </div>
+  </section>
+
+{% endblock content %}
+
+
+{% block scripts %}
+  <script src="{% static 'js/location.js' %}"></script>
+{% endblock scripts %}
+
+

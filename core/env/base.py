@@ -19,10 +19,15 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'reviews'
+    'django.contrib.gis',
+    # custom
+    'reviews',
+    'account',
+    'django_browser_reload',
 ]
 
 MIDDLEWARE = [
+    'django_browser_reload.middleware.BrowserReloadMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -45,6 +50,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'core.context_processors.cores',
             ],
         },
     },
@@ -58,8 +64,12 @@ WSGI_APPLICATION = 'core.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
+        'NAME': os.getenv('PGDATABASE'),
+        'USER': os.getenv('PGUSER'),
+        'PASSWORD': os.getenv('PGPASSWORD'),
+        'HOST': os.getenv('PGHOST'),
+        'PORT': '5432',
     }
 }
 
@@ -81,14 +91,15 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+AUTH_USER_MODEL = "account.Account"
 
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'fr-FR'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Africa/Libreville'
 
 USE_I18N = True
 
@@ -106,10 +117,10 @@ MEDIA_URL = "/media/"
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS = [
-    BASE_DIR / 'core' / 'static',  # 📌 Assure-toi que tes fichiers statiques sont ici
+    BASE_DIR / 'static',  # 📌 Assure-toi que tes fichiers statiques sont ici
 ]
 
-STATIC_ROOT = BASE_DIR / 'static' 
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
@@ -118,3 +129,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_REDIRECT_URL = 'home'  # Redirige après connexion
 LOGOUT_REDIRECT_URL = 'home'  # Redirige après déconnexion
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# ajuste le nom selon ta version exacte
+GDAL_LIBRARY_PATH = os.environ.setdefault("GDAL_LIBRARY_PATH", "C:/OSGeo4W/bin/gdal310.dll")
