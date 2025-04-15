@@ -1,5 +1,5 @@
 from django.contrib.gis import admin
-from .models import Establishment, Review, Menu, Vibe, Amenity, EtablishmentCategory
+from .models import Establishment, Review, Menu, Vibe, Amenity, EtablishmentCategory, MenuSection, Dishe
 
 
 @admin.register(EtablishmentCategory)
@@ -24,11 +24,11 @@ class EstablishmentAdmin(admin.OSMGeoAdmin):
     list_display = ("nom_r", "ville", "category", "phone_number", "website", "crée_le", "location")
     search_fields = ("nom_r", "ville", "category")
     list_filter = ("category", "ville")
-    filter_horizontal = ("vibes", "amenities")  # Ajout des champs ManyToMany
+    filter_horizontal = ("vibes", "amenities", "images")  # Ajout des champs ManyToMany
 
     fieldsets = (
         ("Informations Générales", {
-            "fields": ("nom_r", "description", "addresse", "ville", "location", "category", "image")
+            "fields": ("nom_r", "description", "addresse", "ville", "location", "category", "images")
         }),
         ("Contact", {
             "fields": ("phone_number", "website")
@@ -55,20 +55,39 @@ class ReviewAdmin(admin.ModelAdmin):
     list_filter = ('note', 'crée_le')
 
 
+@admin.register(MenuSection)
+class MenuSectionAdmin(admin.ModelAdmin):
+    list_display = ('name', )
+
+
 @admin.register(Menu)
 class MenuAdmin(admin.ModelAdmin):
     list_display = ('establishment', 'image', 'menu_pdf')
     list_filter = ('establishment',)
     search_fields = ('nom_plat', 'establishment__nom_r')
     ordering = ('establishment',)
-    filter_horizontal = ('dishes',)
+    filter_horizontal = ('sections',)
 
     fieldsets = (
         (None, {
-            'fields': ('establishment', 'dishes')
+            'fields': ('establishment', 'sections')
         }),
         ('Fichiers', {
             'fields': ('image', 'menu_pdf'),
             'description': "Ajoutez une image ou un fichier PDF pour le menu."
+        }),
+    )
+
+
+@admin.register(Dishe)
+class DisheAdmin(admin.ModelAdmin):
+    list_display = ('name', 'menu', 'section', 'prix')
+    list_filter = ('menu', 'section')
+    search_fields = ('name', 'menu__nom_plat', 'section__name')
+    ordering = ('menu', 'section')
+
+    fieldsets = (
+        (None, {
+            'fields': ('name', 'description', 'prix', 'menu', 'section')
         }),
     )

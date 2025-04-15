@@ -32,8 +32,6 @@ class Establishment(models.Model):
     addresse = models.CharField(max_length=255)
     ville = models.CharField(max_length=100)
     crée_le = models.DateTimeField(auto_now_add=True)
-    image = models.ImageField(
-        upload_to='establishments/', blank=True, null=True)
     location = models.PointField(verbose_name="Coordonnées GPS", blank=True, null=True)  # Stocke les coordonnées GPS (longitude, latitude)
 
     # Contact
@@ -51,6 +49,7 @@ class Establishment(models.Model):
         'Vibe', blank=True, related_name='establishments')  # 🎭 What's the vibe
     amenities = models.ManyToManyField(
         'Amenity', blank=True, related_name='establishments')  # ✅ Commodités
+    images = models.ManyToManyField(Image, blank=True)
 
     def has_amenity(self, amenity_name):
         """ Vérifie si l'établissement possède une amenity spécifique """
@@ -66,7 +65,7 @@ class Establishment(models.Model):
 
     def __str__(self):
         return self.nom_r
-    
+
     class Meta:
         verbose_name = 'Etablissement'
         verbose_name_plural = 'Etablissements'
@@ -94,7 +93,7 @@ class Amenity(models.Model):
 
     def __str__(self):
         return self.name
-    
+
     class Meta:
         verbose_name = 'Service'
         verbose_name_plural = 'Services'
@@ -129,19 +128,20 @@ class Review(models.Model):
     def __str__(self):
         return f"Review by {self.utilisateur.username} for {self.etablissement.nom_r}"
 
+    class Meta:
+        verbose_name = "Avis"
+        verbose_name_plural = "Avis"
 
-class Dishe(models.Model):
-    name = models.CharField(max_length=100)
-    description = models.TextField()
-    prix = models.DecimalField(max_digits=10, decimal_places=2)
-    images = models.ManyToManyField(Image, related_name='dishes', blank=True)
+class MenuSection(models.Model):
+    name = models.CharField(max_length=255)
+    description = models.TextField(blank=True)
 
     def __str__(self):
         return self.name
 
     class Meta:
-        verbose_name = 'Plat'
-        verbose_name_plural = 'Plats'
+        verbose_name = 'Section de menu'
+        verbose_name_plural = 'Sections de menus'
 
 
 class Menu(models.Model):
@@ -153,8 +153,8 @@ class Menu(models.Model):
     # foreign keys
     establishment = models.ForeignKey(
         "Establishment", on_delete=models.CASCADE, related_name="menus", null=True)
-    dishes = models.ManyToManyField(
-        Dishe, related_name='menus', blank=True, verbose_name="Plats"
+    sections = models.ManyToManyField(
+        MenuSection, related_name='menus', blank=True
     )
 
     def clean(self):
@@ -168,3 +168,22 @@ class Menu(models.Model):
 
     def __str__(self):
         return f"{self.nom_plat if self.nom_plat else 'Document Menu'} - {self.establishment.nom_r}"
+
+
+class Dishe(models.Model):
+    name = models.CharField(max_length=100)
+    description = models.TextField()
+    prix = models.DecimalField(max_digits=10, decimal_places=2)
+    images = models.ManyToManyField(Image, related_name='images_dishes', blank=True)
+
+    menu = models.ForeignKey(Menu, on_delete=models.CASCADE, related_name='menu_dishes', null=True)
+    section = models.ForeignKey(
+        MenuSection, on_delete=models.CASCADE, related_name='section_dishes', null=True
+    )
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = 'Plat'
+        verbose_name_plural = 'Plats'
